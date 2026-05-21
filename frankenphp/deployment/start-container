@@ -1,0 +1,47 @@
+#!/usr/bin/env sh
+set -e
+
+container_mode=${CONTAINER_MODE:-"http"}
+octane_server=${OCTANE_SERVER}
+local_dev=${LOCAL_DEV:-"false"}
+app_env=${APP_ENV:-"production"}
+
+echo "Container mode: $container_mode"
+
+initialStuff() {
+    php artisan storage:link; \
+    php artisan event:cache; \
+    php artisan config:cache; \
+    php artisan route:cache;
+}
+
+if [ "$1" != "" ]; then
+    exec "$@"
+elif [ "${container_mode}" = "http" ]; then
+
+    if [ "${local_dev}" = "true" ]; then
+        echo "Octane Server: disabled (local development mode)"
+
+        initialStuff
+
+        exec bash -c "frankenphp run"
+    else
+        echo "Octane Server: $octane_server"
+
+        initialStuff
+
+        exec frankenphp php-cli artisan kubernetes:start
+    fi
+elif [ "${container_mode}" = "horizon" ]; then
+    initialStuff
+    exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.horizon.conf
+elif [ "${container_mode}" = "scheduler" ]; then
+    initialStuff
+    exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.scheduler.conf
+elif [ "${container_mode}" = "worker" ]; then
+    initialStuff
+    exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.worker.conf
+else
+    echo "Container mode mismatched."
+    exit 1
+fi

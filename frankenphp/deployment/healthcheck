@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+
+set -e
+
+container_mode=${CONTAINER_MODE:-"http"}
+local_dev=${LOCAL_DEV:-"false"}
+
+if [ "${container_mode}" = "http" ]; then
+    if [ "${local_dev}" = "true" ]; then
+        echo "Reporting healthy without checking Octane status (local development mode)."
+        exit 0
+    fi
+
+    php artisan octane:status
+elif [ "${container_mode}" = "horizon" ]; then
+    php artisan horizon:status
+elif [ "${container_mode}" = "scheduler" ]; then
+    supervisorctl status scheduler:scheduler_0
+elif [ "${container_mode}" = "worker" ]; then
+    supervisorctl status worker:worker_0
+else
+    echo "Container mode mismatched."
+    exit 1
+fi
