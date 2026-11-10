@@ -30,7 +30,7 @@ elif [ "${container_mode}" = "http" ]; then
 
         initialStuff
 
-        exec frankenphp php-cli artisan kubernetes:start
+        exec frankenphp php-cli artisan octane:frankenphp --port=80
     fi
 elif [ "${container_mode}" = "horizon" ]; then
     initialStuff

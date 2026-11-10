@@ -61,6 +61,7 @@ RUN apt-get update; \
     sockets \
     opentelemetry \
     pcov \
+    bcmath \
     && apt-get -y autoremove \
     && apt-get clean \
     && docker-php-source delete \
