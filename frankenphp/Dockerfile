@@ -1,6 +1,6 @@
 # Accepted values: 8.2|8.3|8.4
 ARG PHP_VERSION=8.3
-ARG FRANKENPHP_VERSION=1.11.1
+ARG FRANKENPHP_VERSION=1.13.5
 ARG COMPOSER_VERSION=latest
 
 FROM composer:${COMPOSER_VERSION} AS composer
@@ -61,6 +61,7 @@ RUN apt-get update; \
     sockets \
     opentelemetry \
     pcov \
+    bcmath \
     && apt-get -y autoremove \
     && apt-get clean \
     && docker-php-source delete \
